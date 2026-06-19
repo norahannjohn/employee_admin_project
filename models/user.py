@@ -8,7 +8,6 @@ from datetime import datetime
 from enum import Enum
 
 from sqlalchemy import Boolean, DateTime, Enum as SqlEnum, String
-from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.db import Base

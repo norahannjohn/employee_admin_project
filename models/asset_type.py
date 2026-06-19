@@ -7,7 +7,6 @@ Defines the asset_types table for storing available company assets.
 from datetime import datetime
 
 from sqlalchemy import Boolean, DateTime, String, Text
-from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.db import Base
