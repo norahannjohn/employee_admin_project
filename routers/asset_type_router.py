@@ -2,7 +2,9 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from core.db import get_db
+from core.dependencies import get_current_admin
 from handlers import asset_handler
+from models.user import User
 from schema.asset_schema import (
     AssetTypeResponse,
     CreateAssetTypeRequest,
@@ -22,6 +24,7 @@ router = APIRouter(
 def create_asset(
     asset_data: CreateAssetTypeRequest,
     db: Session = Depends(get_db),
+    current_admin: User = Depends(get_current_admin),
 ):
     """
     Create a new asset type.
@@ -68,6 +71,7 @@ def update_asset(
     asset_id: int,
     asset_data: UpdateAssetTypeRequest,
     db: Session = Depends(get_db),
+    current_admin: User = Depends(get_current_admin),
 ):
     """
     Update an existing asset type.
@@ -94,6 +98,7 @@ def update_asset(
 def deactivate_asset(
     asset_id: int,
     db: Session = Depends(get_db),
+    current_admin: User = Depends(get_current_admin),
 ):
     """
     Deactivate an existing asset type.
