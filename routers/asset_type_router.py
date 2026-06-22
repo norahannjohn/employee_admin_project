@@ -109,3 +109,6 @@ def deactivate_asset(
         db=db,
         asset_id=asset_id,
     )
+
+
+# asset

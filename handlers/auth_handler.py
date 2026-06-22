@@ -1,5 +1,4 @@
 """
-Authentication handler.
 
 Handles authentication-related business logic.
 """

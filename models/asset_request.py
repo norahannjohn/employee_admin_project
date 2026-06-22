@@ -38,23 +38,19 @@ class AssetRequest(Base):
 
     user_id: Mapped[int] = mapped_column(
         ForeignKey("users.id"),
-        nullable=False,
     )
 
     asset_type_id: Mapped[int] = mapped_column(
         ForeignKey("asset_types.id"),
-        nullable=False,
     )
 
     reason: Mapped[str] = mapped_column(
         Text,
-        nullable=False,
     )
 
     status: Mapped[RequestStatus] = mapped_column(
         SqlEnum(RequestStatus),
         default=RequestStatus.PENDING,
-        nullable=False,
     )
 
     admin_comment: Mapped[str | None] = mapped_column(
@@ -64,15 +60,19 @@ class AssetRequest(Base):
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
-        default=datetime.utcnow,
+        default=datetime.now,
     )
 
     updated_at: Mapped[datetime] = mapped_column(
         DateTime,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow,
+        default=datetime.now,
+        onupdate=datetime.now,
     )
 
-    user: Mapped["User"] = relationship(back_populates="requests")
+    user: Mapped["User"] = relationship(
+        back_populates="requests",
+    )
 
-    asset_type: Mapped["AssetType"] = relationship(back_populates="requests")
+    asset_type: Mapped["AssetType"] = relationship(
+        back_populates="requests",
+    )

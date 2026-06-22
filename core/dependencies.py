@@ -1,6 +1,4 @@
 """
-Authentication dependencies.
-
 Provides reusable FastAPI dependencies for
 retrieving the authenticated user and validating roles.
 """

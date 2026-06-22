@@ -1,6 +1,4 @@
 """
-Security utilities.
-
 Provides password hashing and JWT utility functions
 for authentication and authorization.
 """

@@ -1,6 +1,4 @@
 """
-User model.
-
 Defines the users table for storing employee and admin information.
 """
 
@@ -29,28 +27,27 @@ class User(Base):
 
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    id: Mapped[int] = mapped_column(
+        primary_key=True,
+        index=True,
+    )
 
     name: Mapped[str] = mapped_column(
         String(100),
-        nullable=False,
     )
 
     email: Mapped[str] = mapped_column(
         String(255),
         unique=True,
-        nullable=False,
         index=True,
     )
 
     password_hash: Mapped[str] = mapped_column(
         String(255),
-        nullable=False,
     )
 
     role: Mapped[UserRole] = mapped_column(
         SqlEnum(UserRole),
-        nullable=False,
     )
 
     is_active: Mapped[bool] = mapped_column(
@@ -60,8 +57,9 @@ class User(Base):
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
-        default=datetime.utcnow,
+        default=datetime.now,
     )
+
     requests: Mapped[list["AssetRequest"]] = relationship(
         back_populates="user",
         cascade="all, delete-orphan",

@@ -1,5 +1,4 @@
 """
-Asset request router.
 
 Defines asset request API endpoints.
 """

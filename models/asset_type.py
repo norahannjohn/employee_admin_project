@@ -26,13 +26,11 @@ class AssetType(Base):
 
     name: Mapped[str] = mapped_column(
         String(100),
-        nullable=False,
         unique=True,
     )
 
     description: Mapped[str] = mapped_column(
         Text,
-        nullable=False,
     )
 
     is_active: Mapped[bool] = mapped_column(
@@ -42,8 +40,9 @@ class AssetType(Base):
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
-        default=datetime.utcnow,
+        default=datetime.now,
     )
+
     requests: Mapped[list["AssetRequest"]] = relationship(
         back_populates="asset_type",
     )

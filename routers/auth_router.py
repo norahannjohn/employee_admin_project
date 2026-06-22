@@ -1,6 +1,4 @@
 """
-Authentication router.
-
 Defines authentication API endpoints.
 """
 

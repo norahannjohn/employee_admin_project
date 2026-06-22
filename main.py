@@ -1,6 +1,4 @@
 """
-Main application entry point.
-
 Initializes the FastAPI application and registers API routers.
 """
 

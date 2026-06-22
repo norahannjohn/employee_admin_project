@@ -1,5 +1,4 @@
 """
-Asset request schemas.
 
 Defines request and response models for asset request APIs.
 """

@@ -1,5 +1,4 @@
 """
-Authentication schemas.
 
 Defines request and response models for authentication APIs.
 """

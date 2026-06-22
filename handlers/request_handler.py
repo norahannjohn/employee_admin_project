@@ -1,6 +1,4 @@
 """
-Asset request handler.
-
 Handles business logic related to asset requests.
 """
 

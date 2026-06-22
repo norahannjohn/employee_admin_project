@@ -1,6 +1,4 @@
 """
-User mapper.
-
 Handles database operations related to users.
 """
 

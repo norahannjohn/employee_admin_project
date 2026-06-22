@@ -1,6 +1,4 @@
 """
-Authentication service.
-
 Handles service operations related to authentication.
 """
 

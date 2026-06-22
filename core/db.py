@@ -1,5 +1,4 @@
 """
-Database configuration module.
 
 Creates the SQLAlchemy engine, session factory,
 and base class for all database models.
