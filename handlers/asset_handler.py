@@ -1,4 +1,3 @@
-from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from models.asset_type import AssetType
@@ -22,7 +21,7 @@ def create_asset(
         AssetType: Newly created asset type.
 
     Raises:
-        HTTPException: If an asset type with the same name already exists.
+        ValueError: If an asset type with the same name already exists.
     """
     try:
         existing_asset = asset_service.get_asset_by_name(
@@ -31,9 +30,8 @@ def create_asset(
         )
 
         if existing_asset:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Asset type already exists.",
+            raise ValueError(
+                "Asset type already exists.",
             )
 
         asset = AssetType(
@@ -46,8 +44,6 @@ def create_asset(
             asset=asset,
         )
 
-    except HTTPException:
-        raise
     except Exception:
         raise
 
@@ -68,6 +64,7 @@ def get_all_assets(
         return asset_service.get_all_assets(
             db=db,
         )
+
     except Exception:
         raise
 
@@ -89,7 +86,7 @@ def update_asset(
         AssetType: Updated asset type.
 
     Raises:
-        HTTPException: If the asset type does not exist.
+        ValueError: If the asset type does not exist.
     """
     try:
         asset = asset_service.get_asset_by_id(
@@ -98,9 +95,8 @@ def update_asset(
         )
 
         if not asset:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Asset type not found.",
+            raise ValueError(
+                "Asset type not found.",
             )
 
         if asset_data.name is not None:
@@ -114,8 +110,6 @@ def update_asset(
             asset=asset,
         )
 
-    except HTTPException:
-        raise
     except Exception:
         raise
 
@@ -135,7 +129,7 @@ def deactivate_asset(
         AssetType: Deactivated asset type.
 
     Raises:
-        HTTPException: If the asset type does not exist.
+        ValueError: If the asset type does not exist.
     """
     try:
         asset = asset_service.get_asset_by_id(
@@ -144,9 +138,8 @@ def deactivate_asset(
         )
 
         if not asset:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Asset type not found.",
+            raise ValueError(
+                "Asset type not found.",
             )
 
         return asset_service.deactivate_asset(
@@ -154,7 +147,5 @@ def deactivate_asset(
             asset=asset,
         )
 
-    except HTTPException:
-        raise
     except Exception:
         raise

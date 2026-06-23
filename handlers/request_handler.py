@@ -2,7 +2,6 @@
 Handles business logic related to asset requests.
 """
 
-from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from models.asset_request import (
@@ -34,7 +33,7 @@ def create_request(
         AssetRequest: Newly created asset request.
 
     Raises:
-        HTTPException: If the asset type does not exist or is inactive.
+        ValueError: If the asset type does not exist or is inactive.
     """
     try:
         asset = asset_service.get_asset_by_id(
@@ -43,15 +42,13 @@ def create_request(
         )
 
         if asset is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Asset type not found.",
+            raise ValueError(
+                "Asset type not found.",
             )
 
         if not asset.is_active:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Asset type is inactive.",
+            raise ValueError(
+                "Asset type is inactive.",
             )
 
         asset_request = AssetRequest(
@@ -66,8 +63,6 @@ def create_request(
             asset_request=asset_request,
         )
 
-    except HTTPException:
-        raise
     except Exception:
         raise
 
@@ -78,13 +73,6 @@ def get_my_requests(
 ) -> list[AssetRequest]:
     """
     Retrieve all asset requests created by the current user.
-
-    Args:
-        db: SQLAlchemy database session.
-        current_user: Authenticated user.
-
-    Returns:
-        list[AssetRequest]: List of asset requests created by the user.
     """
     try:
         return request_service.get_user_requests(
@@ -104,16 +92,9 @@ def get_request(
     """
     Retrieve an asset request by its ID.
 
-    Args:
-        db: SQLAlchemy database session.
-        request_id: Unique asset request identifier.
-        current_user: Authenticated user.
-
-    Returns:
-        AssetRequest: Matching asset request.
-
     Raises:
-        HTTPException: If the request does not exist or the user is not authorized.
+        ValueError: If the request does not exist.
+        PermissionError: If the user is not authorized.
     """
     try:
         asset_request = request_service.get_request_by_id(
@@ -122,21 +103,17 @@ def get_request(
         )
 
         if asset_request is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Request not found.",
+            raise ValueError(
+                "Request not found.",
             )
 
         if asset_request.user_id != current_user.id:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Access denied.",
+            raise PermissionError(
+                "Access denied.",
             )
 
         return asset_request
 
-    except HTTPException:
-        raise
     except Exception:
         raise
 
@@ -149,17 +126,9 @@ def cancel_request(
     """
     Cancel a pending asset request.
 
-    Args:
-        db: SQLAlchemy database session.
-        request_id: Asset request ID.
-        current_user: Authenticated user.
-
-    Returns:
-        AssetRequest: Updated asset request.
-
     Raises:
-        HTTPException: If the request does not exist, does not belong to the
-            authenticated user, or is not in the pending state.
+        ValueError: If request does not exist or is not pending.
+        PermissionError: If request belongs to another user.
     """
     try:
         asset_request = request_service.get_request_by_id(
@@ -168,21 +137,18 @@ def cancel_request(
         )
 
         if asset_request is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Request not found.",
+            raise ValueError(
+                "Request not found.",
             )
 
         if asset_request.user_id != current_user.id:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="You can only cancel your own requests.",
+            raise PermissionError(
+                "You can only cancel your own requests.",
             )
 
         if asset_request.status != RequestStatus.PENDING:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Only pending requests can be cancelled.",
+            raise ValueError(
+                "Only pending requests can be cancelled.",
             )
 
         asset_request.status = RequestStatus.CANCELLED
@@ -192,8 +158,6 @@ def cancel_request(
             asset_request=asset_request,
         )
 
-    except HTTPException:
-        raise
     except Exception:
         raise
 
@@ -205,17 +169,6 @@ def approve_request(
 ) -> AssetRequest:
     """
     Approve an asset request.
-
-    Args:
-        db: SQLAlchemy database session.
-        request_id: Asset request ID.
-        admin_comment: Admin approval comment.
-
-    Returns:
-        AssetRequest: Approved asset request.
-
-    Raises:
-        HTTPException: If the request does not exist or is not pending.
     """
     try:
         asset_request = request_service.get_request_by_id(
@@ -224,15 +177,13 @@ def approve_request(
         )
 
         if asset_request is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Request not found.",
+            raise ValueError(
+                "Request not found.",
             )
 
         if asset_request.status != RequestStatus.PENDING:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Only pending requests can be approved.",
+            raise ValueError(
+                "Only pending requests can be approved.",
             )
 
         asset_request.status = RequestStatus.APPROVED
@@ -243,8 +194,6 @@ def approve_request(
             asset_request=asset_request,
         )
 
-    except HTTPException:
-        raise
     except Exception:
         raise
 
@@ -256,17 +205,6 @@ def reject_request(
 ) -> AssetRequest:
     """
     Reject an asset request.
-
-    Args:
-        db: SQLAlchemy database session.
-        request_id: Asset request ID.
-        admin_comment: Admin rejection comment.
-
-    Returns:
-        AssetRequest: Rejected asset request.
-
-    Raises:
-        HTTPException: If the request does not exist or is not pending.
     """
     try:
         asset_request = request_service.get_request_by_id(
@@ -275,15 +213,13 @@ def reject_request(
         )
 
         if asset_request is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Request not found.",
+            raise ValueError(
+                "Request not found.",
             )
 
         if asset_request.status != RequestStatus.PENDING:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Only pending requests can be rejected.",
+            raise ValueError(
+                "Only pending requests can be rejected.",
             )
 
         asset_request.status = RequestStatus.REJECTED
@@ -294,7 +230,5 @@ def reject_request(
             asset_request=asset_request,
         )
 
-    except HTTPException:
-        raise
     except Exception:
         raise

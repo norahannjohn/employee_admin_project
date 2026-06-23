@@ -1,9 +1,7 @@
 """
-
 Handles authentication-related business logic.
 """
 
-from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from core.security import (
@@ -32,8 +30,8 @@ def login(
         LoginResponse: JWT access token response.
 
     Raises:
-        HTTPException: If the email does not exist, the account is inactive,
-            or the password is incorrect.
+        ValueError: If the email does not exist or the password is incorrect.
+        PermissionError: If the user account is inactive.
     """
     try:
         user = auth_service.get_user_by_email(
@@ -42,24 +40,21 @@ def login(
         )
 
         if user is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid email or password.",
+            raise ValueError(
+                "Invalid email or password.",
             )
 
         if not user.is_active:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="User account is inactive.",
+            raise PermissionError(
+                "User account is inactive.",
             )
 
         if not verify_password(
             login_request.password,
             user.password_hash,
         ):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid email or password.",
+            raise ValueError(
+                "Invalid email or password.",
             )
 
         access_token = create_access_token(
@@ -71,9 +66,6 @@ def login(
             access_token=access_token,
             token_type="bearer",
         )
-
-    except HTTPException:
-        raise
 
     except Exception:
         raise

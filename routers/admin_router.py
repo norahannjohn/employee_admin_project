@@ -4,7 +4,12 @@ Admin router.
 Provides admin endpoints for managing asset requests.
 """
 
-from fastapi import APIRouter, Depends
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    status,
+)
 from sqlalchemy.orm import Session
 
 from core.db import get_db
@@ -40,9 +45,16 @@ def get_all_requests(
     Returns:
         list[RequestResponse]: Asset requests.
     """
-    return admin_handler.get_all_requests(
-        db=db,
-    )
+    try:
+        return admin_handler.get_all_requests(
+            db=db,
+        )
+
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve requests.",
+        ) from exc
 
 
 @router.patch(
@@ -67,11 +79,32 @@ def approve_request(
     Returns:
         RequestResponse: Updated asset request.
     """
-    return admin_handler.approve_request(
-        db=db,
-        request_id=request_id,
-        comment_data=comment_data,
-    )
+    try:
+        return admin_handler.approve_request(
+            db=db,
+            request_id=request_id,
+            comment_data=comment_data,
+        )
+
+    except ValueError as exc:
+        message = str(exc)
+
+        if message == "Request not found.":
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=message,
+            ) from exc
+
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=message,
+        ) from exc
+
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to approve request.",
+        ) from exc
 
 
 @router.patch(
@@ -96,8 +129,29 @@ def reject_request(
     Returns:
         RequestResponse: Updated asset request.
     """
-    return admin_handler.reject_request(
-        db=db,
-        request_id=request_id,
-        comment_data=comment_data,
-    )
+    try:
+        return admin_handler.reject_request(
+            db=db,
+            request_id=request_id,
+            comment_data=comment_data,
+        )
+
+    except ValueError as exc:
+        message = str(exc)
+
+        if message == "Request not found.":
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=message,
+            ) from exc
+
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=message,
+        ) from exc
+
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to reject request.",
+        ) from exc

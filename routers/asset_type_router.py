@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from core.db import get_db
@@ -36,10 +36,17 @@ def create_asset(
     Returns:
         AssetTypeResponse: Newly created asset type.
     """
-    return asset_handler.create_asset(
-        db=db,
-        asset_data=asset_data,
-    )
+    try:
+        return asset_handler.create_asset(
+            db=db,
+            asset_data=asset_data,
+        )
+
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        ) from exc
 
 
 @router.get(
@@ -58,9 +65,16 @@ def get_all_assets(
     Returns:
         list[AssetTypeResponse]: List of all asset types.
     """
-    return asset_handler.get_all_assets(
-        db=db,
-    )
+    try:
+        return asset_handler.get_all_assets(
+            db=db,
+        )
+
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve asset types.",
+        ) from exc
 
 
 @router.patch(
@@ -84,11 +98,18 @@ def update_asset(
     Returns:
         AssetTypeResponse: Updated asset type.
     """
-    return asset_handler.update_asset(
-        db=db,
-        asset_id=asset_id,
-        asset_data=asset_data,
-    )
+    try:
+        return asset_handler.update_asset(
+            db=db,
+            asset_id=asset_id,
+            asset_data=asset_data,
+        )
+
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(exc),
+        ) from exc
 
 
 @router.delete(
@@ -110,10 +131,14 @@ def deactivate_asset(
     Returns:
         AssetTypeResponse: Deactivated asset type.
     """
-    return asset_handler.deactivate_asset(
-        db=db,
-        asset_id=asset_id,
-    )
+    try:
+        return asset_handler.deactivate_asset(
+            db=db,
+            asset_id=asset_id,
+        )
 
-
-# asset
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(exc),
+        ) from exc

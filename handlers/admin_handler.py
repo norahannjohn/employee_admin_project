@@ -4,7 +4,6 @@ Admin handler.
 Handles business logic for admin operations.
 """
 
-from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from models.asset_request import RequestStatus
@@ -50,7 +49,7 @@ def approve_request(
         AssetRequest: Updated asset request.
 
     Raises:
-        HTTPException: If request does not exist or is not pending.
+        ValueError: If request does not exist or is not pending.
     """
     try:
         asset_request = admin_service.get_request_by_id(
@@ -59,15 +58,13 @@ def approve_request(
         )
 
         if not asset_request:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Request not found.",
+            raise ValueError(
+                "Request not found.",
             )
 
         if asset_request.status != RequestStatus.PENDING:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Only pending requests can be approved.",
+            raise ValueError(
+                "Only pending requests can be approved.",
             )
 
         asset_request.status = RequestStatus.APPROVED
@@ -77,9 +74,6 @@ def approve_request(
             db=db,
             asset_request=asset_request,
         )
-
-    except HTTPException:
-        raise
 
     except Exception:
         raise
@@ -102,7 +96,7 @@ def reject_request(
         AssetRequest: Updated asset request.
 
     Raises:
-        HTTPException: If request does not exist or is not pending.
+        ValueError: If request does not exist or is not pending.
     """
     try:
         asset_request = admin_service.get_request_by_id(
@@ -111,15 +105,13 @@ def reject_request(
         )
 
         if not asset_request:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Request not found.",
+            raise ValueError(
+                "Request not found.",
             )
 
         if asset_request.status != RequestStatus.PENDING:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Only pending requests can be rejected.",
+            raise ValueError(
+                "Only pending requests can be rejected.",
             )
 
         asset_request.status = RequestStatus.REJECTED
@@ -129,9 +121,6 @@ def reject_request(
             db=db,
             asset_request=asset_request,
         )
-
-    except HTTPException:
-        raise
 
     except Exception:
         raise

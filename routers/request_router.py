@@ -1,9 +1,13 @@
 """
-
 Defines asset request API endpoints.
 """
 
-from fastapi import APIRouter, Depends
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    status,
+)
 from sqlalchemy.orm import Session
 
 from core.db import get_db
@@ -47,8 +51,26 @@ def create_request(
             current_user=current_user,
             request_data=request_data,
         )
-    except Exception:
-        raise
+
+    except ValueError as exc:
+        message = str(exc)
+
+        if message == "Asset type not found.":
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=message,
+            ) from exc
+
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=message,
+        ) from exc
+
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to create request.",
+        ) from exc
 
 
 @router.get(
@@ -61,21 +83,18 @@ def get_my_requests(
 ) -> list[RequestResponse]:
     """
     Retrieve all asset requests created by the authenticated user.
-
-    Args:
-        db: SQLAlchemy database session.
-        current_user: Authenticated user.
-
-    Returns:
-        list[RequestResponse]: List of asset requests created by the user.
     """
     try:
         return request_handler.get_my_requests(
             db=db,
             current_user=current_user,
         )
-    except Exception:
-        raise
+
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve requests.",
+        ) from exc
 
 
 @router.get(
@@ -89,14 +108,6 @@ def get_request(
 ) -> RequestResponse:
     """
     Retrieve an asset request by its ID.
-
-    Args:
-        request_id: Unique asset request identifier.
-        db: SQLAlchemy database session.
-        current_user: Authenticated user.
-
-    Returns:
-        RequestResponse: Matching asset request.
     """
     try:
         return request_handler.get_request(
@@ -104,8 +115,24 @@ def get_request(
             request_id=request_id,
             current_user=current_user,
         )
-    except Exception:
-        raise
+
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(exc),
+        ) from exc
+
+    except PermissionError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=str(exc),
+        ) from exc
+
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve request.",
+        ) from exc
 
 
 @router.patch(
@@ -119,14 +146,6 @@ def cancel_request(
 ) -> RequestResponse:
     """
     Cancel a pending asset request.
-
-    Args:
-        request_id: Asset request identifier.
-        db: SQLAlchemy database session.
-        current_user: Authenticated user.
-
-    Returns:
-        RequestResponse: Updated asset request.
     """
     try:
         return request_handler.cancel_request(
@@ -134,5 +153,29 @@ def cancel_request(
             request_id=request_id,
             current_user=current_user,
         )
-    except Exception:
-        raise
+
+    except ValueError as exc:
+        message = str(exc)
+
+        if message == "Request not found.":
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=message,
+            ) from exc
+
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=message,
+        ) from exc
+
+    except PermissionError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=str(exc),
+        ) from exc
+
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to cancel request.",
+        ) from exc
